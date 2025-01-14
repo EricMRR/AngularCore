@@ -1,0 +1,131 @@
+﻿using ClassLibrary.Solucion;
+using ClassLibrary.Transporte;
+using ClassLibraryDAL;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+
+namespace WebApplicationAPI.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class DispositivoController : ControllerBase
+    {
+        private readonly ILogger<DispositivoController> logger;
+        private readonly Contexto contexto;
+
+        public DispositivoController(ILogger<DispositivoController> logger, Contexto contexto)
+        {
+            this.logger = logger;
+            this.contexto = contexto;
+        }
+
+        [HttpPost]
+        public RespuestaAPI<Dispositivo> Agregar(PeticionAPI<Dispositivo> peticionAPI) {
+            RespuestaAPI<Dispositivo> r = new RespuestaAPI<Dispositivo>();
+            try
+            {
+                //Obtencion de datos de sesion... me falta cachar esa parte
+                Dispositivo d = new Dispositivo() { Nombre = peticionAPI.Data.Nombre, CuentaId = 0, Eliminado = false, Id = null, Modificacion = DateTime.Now };
+                contexto.Dispositivos.Add(d);
+                contexto.SaveChangesAsync();
+
+                r.Data = d;
+                r.Code = 0;
+                r.Mensaje = "OK";
+            }
+            catch (Exception ee)
+            {
+                r.Code = 100;
+                r.Mensaje = ee.Message;
+            }
+            return r;
+        }
+
+        [HttpPut]
+        public RespuestaAPI<Dispositivo> Actualizar(PeticionAPI<Dispositivo> peticionAPI)
+        {
+            RespuestaAPI<Dispositivo> r = new RespuestaAPI<Dispositivo>();
+            try
+            {
+                //Obtencion de datos de sesion... me falta cachar esa parte
+                Dispositivo d = new Dispositivo() { Nombre = peticionAPI.Data.Nombre, CuentaId = 0, Eliminado = false, Id = peticionAPI.Data.Id, Modificacion = DateTime.Now };
+                contexto.Dispositivos.Update(d);
+                contexto.SaveChangesAsync();
+
+                r.Data = d;
+                r.Code = 0;
+                r.Mensaje = "OK";
+            }
+            catch (Exception ee)
+            {
+                r.Code = 100;
+                r.Mensaje = ee.Message;
+            }
+            return r;
+        }
+
+        [HttpDelete]
+        public RespuestaAPI<bool> Borrar(PeticionAPI<Dispositivo> peticionAPI)
+        {
+            RespuestaAPI<bool> r = new RespuestaAPI<bool>();
+            try
+            {
+                //Obtencion de datos de sesion... me falta cachar esa parte
+                Dispositivo d = new Dispositivo() { Nombre = peticionAPI.Data.Nombre, CuentaId = 0, Eliminado = true, Id = peticionAPI.Data.Id, Modificacion = DateTime.Now };
+                contexto.Dispositivos.Update(d);
+                contexto.SaveChangesAsync();
+
+                r.Data = true;
+                r.Code = 0;
+                r.Mensaje = "OK";
+            }
+            catch (Exception ee)
+            {
+                r.Code = 100;
+                r.Mensaje = ee.Message;
+            }
+            return r;
+        }
+
+        [HttpGet("{Id}")]
+        public RespuestaAPI<Dispositivo> Obtener(int Id)
+        {
+            RespuestaAPI<Dispositivo> r = new RespuestaAPI<Dispositivo>();
+            try
+            {
+                //Obtencion de datos de sesion... me falta cachar esa parte
+                r.Data = contexto.Dispositivos.Where(x => x.Eliminado == false && x.Id == Id).FirstOrDefault();
+                r.Code = 0;
+                r.Mensaje = "OK";
+            }
+            catch (Exception ee)
+            {
+                r.Code = 100;
+                r.Mensaje = ee.Message;
+            }
+            return r;
+        }
+
+        [HttpGet]
+        public RespuestaAPI<IEnumerable<Dispositivo>> Listar()
+        {
+            RespuestaAPI<IEnumerable<Dispositivo>> r = new RespuestaAPI<IEnumerable<Dispositivo>>();
+            try
+            {
+                //Obtencion de datos de sesion... me falta cachar esa parte
+                r.Data = contexto.Dispositivos.Where(x => x.Eliminado == false).ToList();
+                r.Code = 0;
+                r.Mensaje = "OK";
+            }
+            catch (Exception ee)
+            {
+                r.Code = 100;
+                r.Mensaje = ee.Message;
+            }
+            return r;
+        }
+    }
+}
+
+
